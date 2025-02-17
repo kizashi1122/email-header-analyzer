@@ -6,7 +6,8 @@ from email.parser import HeaderParser
 import time
 import dateutil.parser
 
-from datetime import datetime
+#from datetime import datetime
+import datetime
 import re
 
 import pygal
@@ -147,11 +148,20 @@ def index():
                 delay = 0
 
             try:
+                # struct_time を datetime に変換（UTC ベース）
+                ftime = org_time.utctimetuple()
+                ftime_dt = datetime.datetime(*ftime[:6])  # 年, 月, 日, 時, 分, 秒 を渡す
+                ftime = time.strftime('%m/%d/%Y %I:%M:%S %p', ftime)
+
+                JST = datetime.timezone(datetime.timedelta(hours=9))
+                ftime_jst = ftime_dt.replace(tzinfo=datetime.timezone.utc).astimezone(JST)
+                ftime2 = ftime_jst.strftime('%Y-%m-%d %H:%M:%S%z')
                 ftime = org_time.utctimetuple()
                 ftime = time.strftime('%m/%d/%Y %I:%M:%S %p', ftime)
                 r[c] = {
                     'Timestmp': org_time,
                     'Time': ftime,
+                    'Time2': ftime2,
                     'Delay': delay,
                     'Direction': [x.replace('\n', ' ') for x in list(map(str.strip, data[0]))]
                 }
