@@ -1,8 +1,11 @@
 from flask import Flask
 from flask import render_template
 from flask import request
+import logging
 
 from email.parser import HeaderParser
+from email.header import decode_header
+
 import time
 import dateutil.parser
 
@@ -81,6 +84,22 @@ def getHeaderVal(h, data, rex='\s*(.*?)\n\S+:\s'):
     else:
         return None
 
+def mimeDecode(s):
+    if s is None or s == '':
+        return ''
+
+    # 各部分をデコードして結合
+    decoded_parts = []
+    for part, encoding in decode_header(s):
+        if isinstance(part, bytes):
+            ss = part.decode(encoding or "utf-8")
+            decoded_parts.append(ss)
+        else:  # すでに文字列の場合（エンコードなし）
+            decoded_parts.append(part)
+
+    # 全てを結合
+    decoded_text = ''.join(decoded_parts)
+    return decoded_text
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -196,10 +215,10 @@ def index():
         chart = line_chart.render(is_unicode=True)
 
         summary = {
-            'From': n.get('From') or getHeaderVal('from', mail_data),
-            'To': n.get('to') or getHeaderVal('to', mail_data),
-            'Cc': n.get('cc') or getHeaderVal('cc', mail_data),
-            'Subject': n.get('Subject') or getHeaderVal('Subject', mail_data),
+            'From': mimeDecode(n.get('From')) or getHeaderVal('from', mail_data),
+            'To': mimeDecode(n.get('to')) or getHeaderVal('to', mail_data),
+            'Cc': mimeDecode(n.get('cc')) or getHeaderVal('cc', mail_data),
+            'Subject': mimeDecode(n.get('Subject')) or  getHeaderVal('Subject', mail_data),
             'MessageID': n.get('Message-ID') or getHeaderVal('Message-ID', mail_data),
             'Date': n.get('Date') or getHeaderVal('Date', mail_data),
         }
