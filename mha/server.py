@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import render_template
 from flask import request
 import logging
@@ -100,6 +100,10 @@ def mimeDecode(s):
     # 全てを結合
     decoded_text = ''.join(decoded_parts)
     return decoded_text
+
+@app.route('/healthcheck', methods=['GET'])
+def healthcheck():
+    return jsonify({"status": "healthy"}), 200
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
