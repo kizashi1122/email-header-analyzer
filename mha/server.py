@@ -221,7 +221,7 @@ def index():
         summary = {
             'From': mimeDecode(n.get('From')) or getHeaderVal('from', mail_data),
             'To': mimeDecode(n.get('to')) or getHeaderVal('to', mail_data),
-            'Cc': mimeDecode(n.get('cc')) or getHeaderVal('cc', mail_data),
+            'Cc': mimeDecode(n.get('cc')), # or getHeaderVal('cc', mail_data),
             'Subject': mimeDecode(n.get('Subject')) or  getHeaderVal('Subject', mail_data),
             'MessageID': n.get('Message-ID') or getHeaderVal('Message-ID', mail_data),
             'Date': n.get('Date') or getHeaderVal('Date', mail_data),
