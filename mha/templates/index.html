@@ -102,13 +102,12 @@
           <h5 class="card-header">Security Headers</h5>
           <div class="table-responsive">
             <table class="table table-bordered">
-              {% for k,v in n.items() %}
-              {% if k in security_headers %}
+              {% for k,v in sh.items() %}
               <tr>
                 <th>{{ k }}</th>
-                <td>{{ v }}</td>
+                <td>{{ v | safe}}</td>
               </tr>
-              {% endif %} {% endfor %}
+              {% endfor %}
             </table>
           </div>
         </div>

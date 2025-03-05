@@ -229,9 +229,31 @@ def index():
 
         security_headers = ['Received-SPF', 'Authentication-Results',
                             'DKIM-Signature', 'ARC-Authentication-Results']
+        sh = {}
+        for k,v in n.items():
+            if k in security_headers:
+                pass_patterns = [r'dkim=pass', r'dmarc=pass', r'spf=pass']
+                v2 = v
+                for pattern in pass_patterns:
+                    v2 = re.sub(pattern, rf'<span class="badge badge-success">{pattern}</span>', v2)
+
+                fail_patterns = [r'dkim=fail', r'dmarc=fail', r'spf=fail']
+                for pattern in fail_patterns:
+                    v2 = re.sub(pattern, rf'<span class="badge badge-danger">{pattern}</span>', v2)
+
+                softfail_patterns = [r'spf=softfail']
+                for pattern in softfail_patterns:
+                    v2 = re.sub(pattern, rf'<span class="badge badge-warning">{pattern}</span>', v2)
+
+                none_patterns = [r'dkim=neutral', r'dmarc=none', r'dmarc=bestguesspass', r'spf=none']
+                for pattern in none_patterns:
+                    v2 = re.sub(pattern, rf'<span class="badge badge-dark">{pattern}</span>', v2)
+
+                sh[k] = v2
+
         return render_template(
             'index.html', data=r, delayed=delayed, summary=summary,
-            n=n, chart=chart, security_headers=security_headers)
+            n=n, chart=chart, sh=sh)
     else:
         return render_template('index.html')
 
