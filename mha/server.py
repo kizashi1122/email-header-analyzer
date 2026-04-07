@@ -72,8 +72,10 @@ def dateParser(line):
     # incorrect timezone information issue #5 GitHub
     except ValueError:
         r = re.findall('^(.*?)\s*(?:\(|utc)', line, re.I)
-        if r:
+        if r and r[0].strip():
             r = dateutil.parser.parse(r[0])
+        else:
+            return None
     return r
 
 
@@ -137,10 +139,14 @@ def index():
                 next_line = None
 
             org_time = dateParser(line[-1])
+            if org_time is None and len(line) >= 2:
+                org_time = dateParser(line[-2] + ' ' + line[-1])
             if not next_line:
                 next_time = org_time
             else:
                 next_time = dateParser(next_line[-1])
+                if next_time is None and len(next_line) >= 2:
+                    next_time = dateParser(next_line[-2] + ' ' + next_line[-1])
 
             if line[0].startswith('from'):
                 data = re.findall(
